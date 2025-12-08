@@ -13,5 +13,6 @@
 #Ignore pipeline outputs
 data/
 plots/
+scripts_old/
 
 .soft.gz

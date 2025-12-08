@@ -15,7 +15,7 @@ options(timeout = max(300, getOption("timeout"))) # 5 mins timeout
 
 # Relative Paths
 project_dir <- getwd()
-data_dir <- file.path(project_dir, "data_new")
+data_dir <- file.path(project_dir, "data")
 idat_dir <- file.path(data_dir, "raw", "idats")
 processed_dir <- file.path(data_dir, "analyzed")
 
