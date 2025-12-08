@@ -1,0 +1,17 @@
+# Ignore all Python scripts
+*.py
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore R history and workspace files
+.Rhistory
+.Rprofile
+
+.DS_Store
+
+#Ignore pipeline outputs
+data/
+plots/
+
+.soft.gz
