@@ -25,19 +25,24 @@ sapply(c(data_dir, idat_dir, processed_dir), function(x) {
 })
 
 # --- DOWNLOAD METADATA (Hugging Face) ---
-message("Fetching Supplementatry Table 4 (Koelsche et al 2021) from Hugging Face...")
+message("Fetching Supplementatry Table 4 (Koelsche et al 2021)")
 meta_url <- "https://huggingface.co/datasets/bemert/GSE140686_GPL13534/resolve/main/41467_2020_20603_MOESM4_ESM.xlsx"
 meta_dir <- file.path(data_dir, "raw", "GSE140686")
 meta_file <- file.path(meta_dir, "41467_2020_20603_MOESM4_ESM.xlsx")
 
 if (!dir.exists(meta_dir)) dir.create(meta_dir, recursive = TRUE)
 
-tryCatch({
-  download.file(meta_url, meta_file, mode = "wb", quiet = TRUE)
-  message("Metadata downloaded successfully.")
-}, error = function(e) {
-  stop("Failed to download metadata from Hugging Face: ", e$message)
-})
+if (!file.exists(meta_file)) {
+  message(paste("Downloading:", meta_file))
+  tryCatch({
+    download.file(meta_url, meta_file, mode = "wb", quiet = TRUE)
+    message("Metadata downloaded successfully.")
+  }, error = function(e) {
+    stop("Failed to download metadata from Hugging Face: ", e$message)
+  })
+} else {
+  message("Metadata already exists. Skipping download")
+}
 
 meta_df <- read_excel(meta_file)
 
