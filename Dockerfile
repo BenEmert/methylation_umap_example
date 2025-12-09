@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libxml2-dev \
     zlib1g-dev \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory to the PROJECT ROOT
