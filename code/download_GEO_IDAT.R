@@ -59,7 +59,7 @@ meta_list <- list()
 
 for (fn in matrix_files) {
   url <- paste0(base_hf_url, fn)
-  dest_matrix <- file.path(data_dir, "raw", fn)
+  dest_matrix <- file.path(meta_dir, fn)
   
   if (!file.exists(dest_matrix)) {
     message(paste("Downloading:", fn))
