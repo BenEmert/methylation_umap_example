@@ -11,7 +11,9 @@
 .DS_Store
 
 #Ignore pipeline outputs
-data/
+data/raw/idats/
+data/analyzed/
+data/raw/minfi_targets_reference.csv
 plots/
 scripts_old/
 
