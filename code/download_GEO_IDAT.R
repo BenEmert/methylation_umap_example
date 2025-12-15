@@ -191,7 +191,10 @@ targets <- matched_data %>%
     Basename = file.path(idat_dir, paste0(geo_accession, "_", basename_map)),
     Array_Platform = ifelse(platform_id == "GPL13534", "450k", "EPIC")
   ) %>%
-  select(Basename, geo_accession, IDAT = basename_map, Array_Platform, DNA_Type = DNA, Diagnosis, Batch, Supplier)
+  select(Basename, geo_accession, IDAT = basename_map, Array_Platform, DNA_Type = DNA, Diagnosis, Methylation_Class = `Methylation Class Name`, Batch, Supplier, Color = Colour)
+
+targets <- targets %>%
+  mutate(Methylation_Class = str_remove(Methylation_Class, "methylation class "))
 
 write.csv(targets, file = file.path(data_dir, "raw/minfi_targets_reference.csv"), row.names = FALSE)
 message("Download pipeline complete.")

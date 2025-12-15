@@ -1,7 +1,7 @@
 # prepare_metadata.R
 
 library(dplyr)
-library(pals) # For 'glasbey' palette
+library(pals) 
 library(data.table)
 library(readxl)
 
@@ -16,7 +16,84 @@ targets <- fread(file.path(processed_dir, "GSE140686_Final_Targets.csv"))
 meta_file <- file.path(data_dir, "raw/GSE140686/41467_2020_20603_MOESM4_ESM.xlsx")
 meta_df <- read_excel(meta_file)
 
-# 4. Prepare Metadata (Diagnosis Mapping)
+message("   Generating Methylation Class Acronyms (Methyl_Dx)...")
+
+methyl_map <- tribble(
+  ~Methylation_Class, ~Methyl_Dx,
+  "rhabdomyosarcoma (alveolar)", "RMS-A",
+  "rhabdomyosarcoma (embryonal)", "RMS-E",
+  "synovial sarcoma", "SS",
+  "myxoid liposarcoma", "MLPS",
+  "small blue round cell tumour with BCOR alteration", "BCOR",
+  "small blue round cell tumour with CIC alteration", "CIC",
+  "Ewing´s sarcoma", "EWS",
+  "fibrous dysplasia", "FD",
+  "chordoma", "CHORD",
+  "osteosarcoma (high grade)", "OS-HG",
+  "undifferentiated sarcoma", "US",
+  "chondrosarcoma (IDH group A)", "CSA-IDH-A",
+  "chondrosarcoma (group B)", "CSA-B",
+  "chondrosarcoma (mesenchymal)", "CSA-M",
+  "chondrosarcoma (group A)", "CSA-A",
+  "extraskeletal myxoid chondrosarcoma", "EMC",
+  "desmoplastic small round cell tumour", "DSRCT",
+  "alveolar soft part sarcoma", "ASPS",
+  "sarcoma (RMS-like)", "SARC-RMS",
+  "solitary fibrous tumour", "SFT",
+  "sarcoma (MPNST-like)", "SARC-MPNST",
+  "angiosarcoma", "AS",
+  "gastrointestinal stromal tumour", "GIST",
+  "leiomyosarcoma", "LMS",
+  "control (reactive tissue)", "CTRL-TISSUE",
+  "chordoma (dedifferentiated)", "CHORD-DD",
+  "lipoma", "LPO",
+  "dermatofibrosarcoma protuberans", "DFSP",
+  "giant cell tumour of bone", "GCTB",
+  "malignant peripheral nerve sheath tumour", "MPNST",
+  "osteoblastoma", "OBL",
+  "desmoid-type fibromatosis", "DES",
+  "low-grade fibromyxoid sarcoma", "LGFMS",
+  "neurofibroma", "NF",
+  "neurofibroma (plexiform)", "NF-P",
+  "schwannoma", "SCHW",
+  "infantile fibrosarcoma", "IFS",
+  "rhabdomyosarcoma (MYOD1)", "RMS-MYOD1",
+  "Kaposi sarcoma", "KS",
+  "melanoma (cutaneous)", "MEL",
+  "sclerosing epithelioid fibrosarcoma", "SEF",
+  "well- / dedifferentiated liposarcoma", "WDLPS/DDLPS",
+  "control (muscle tissue)", "CTRL-MUSCLE",
+  "malignant rhabdoid tumour", "MRT",
+  "chondrosarcoma (clear cell)", "CSA-CC",
+  "chondroblastoma", "CB",
+  "chondrosarcoma (IDH group B)", "CSA-IDH-B",
+  "squamous cell carcinoma (cutaneous)", "SCC",
+  "endometrial stromal sarcoma (low grade)", "ESS-LG",
+  "atypical fibroxanthoma / pleomorphic dermal sarcoma", "AFX/PDS",
+  "clear cell sarcoma of the kidney", "CCS-K",
+  "epithelioid sarcoma", "ES",
+  "myositis ossificans", "MOS",
+  "epithelioid haemangioendothelioma", "EHE",
+  "inflammatory myofibroblastic tumour", "IMT",
+  "nodular fasciitis", "NOD",
+  "angiomatoid fibrous histiocytoma", "AFH",
+  "myositis proliferans", "MYP",
+  "ossifying fibromyxoid tumour", "OFMT",
+  "Langerhans cell histiocytosis", "LCH",
+  "leiomyoma", "LMO",
+  "clear cell sarcoma of soft parts", "CCS",
+  "angioleiomyoma / myopericytoma", "ALMO/MPC",
+  "endometrial stromal sarcoma (high grade)", "ESS-HG",
+  "control (blood)", "CTRL-BLOOD"
+)
+    
+# Merge with targets and had # to colors
+temp_meta <- targets %>%
+    left_join(methyl_map, by = "Methylation_Class") %>% 
+    mutate(
+      Color = paste0("#", Color), 
+      ID = paste(geo_accession, IDAT, sep = "_"))
+
 message("   Adding diagnosis acronyms and color palette...")
 
 dx_map <- tribble(
@@ -102,7 +179,7 @@ dx_map <- tribble(
 # Copy the color pallette from Koelsche et al 2021
 # The colors are assigned to the 65 methylation classes, not to unique diagnoses
 # Add colors so that each of the diagnoses is assigned a unique color
-color_pal <- paste0("#", unique(meta_df$Colour))
+color_pal <- unique(temp_meta$Color)
 unique_dx <- unique(dx_map$Dx)
 new_colors <- pals::glasbey(n = length(unique_dx) - length(color_pal))
 color_pal <- unique(c(color_pal, new_colors))
@@ -113,11 +190,18 @@ names(color_pal) <- unique_dx
 dx_map <- dx_map %>%
   mutate(Color_dx = color_pal[Dx])
 
-# Merge with Targets
-meta_complete <- targets %>%
-    left_join(dx_map, by = "Diagnosis") %>% 
-    mutate(ID = paste(geo_accession, IDAT, sep = "_"))
+message("   Generating WHO Colors...")
+unique_who <- sort(unique(dx_map$WHO_differentiation))
+who_colors <- pals::alphabet(n = length(unique_who))
+message(sprintf("Unique WHO categories: %d", length(unique_who)))
+message(sprintf("Unique WHO colors: %d", length(who_colors)))
+names(who_colors) <- unique_who
+dx_map <- dx_map %>% mutate(Color_WHO = who_colors[WHO_differentiation])
 
+# Merge with temp_meta
+meta_complete <- temp_meta %>%
+    left_join(dx_map, by = "Diagnosis") 
+    
 # Save
 message("Saving metadata file")
 write.csv(meta_complete, file.path(processed_dir, "metadata_complete.csv"), row.names = FALSE)
