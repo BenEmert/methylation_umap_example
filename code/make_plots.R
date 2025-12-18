@@ -275,7 +275,7 @@ for (nn in c(5, 15, 50)) {
 nn_plots <- wrap_plots(plot_list, nrow = 1)
 ggsave(file.path(plot_dir, "umap_GPL13534_M_n_neighbors_comparison.pdf"), nn_plots, width=21, height=7, dpi=300)
 
-# 5. Perplexity Comparison (tSNE)
+# Perplexity Comparison (tSNE)
 # ------------------------------------------------------------------------------
 message("   [PLOTTING] tSNE Perplexity Comparison...")
 plot_list <- list()
