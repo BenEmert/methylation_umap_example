@@ -243,14 +243,14 @@ dat0 <- combined %>% filter(random_state == "random state = 0")
 p_zoom0 <- plot_umap_gg(dat0, xlim=c(0.8, 7.1), ylim=c(-3.0, 3.5))
 ggsave(file.path(plot_dir, "umap_GPL13534_M_rng0_zoom1.pdf"), p_zoom0, width=7, height=7)
 
-p_box0 <- plot_umap_gg(dat0, rect_coords=list(xmin=0.3, xmax=7.5, ymin=-3.5, ymax=4.0))
+p_box0 <- plot_umap_gg(dat0, rect_coords=list(xmin=0.3, xmax=7.6, ymin=-3.5, ymax=4.0))
 ggsave(file.path(plot_dir, "umap_GPL13534_M_rng0_box1.pdf"), p_box0, width=7, height=7)
 
 dat1 <- combined %>% filter(random_state == "random state = 1")
 p_zoom1 <- plot_umap_gg(dat1, xlim=c(1.4, 7.2), ylim=c(-3.5, 3.1))
-ggsave(file.path(plot_dir, "umap_GPL13534_M_rng1_zoom1_3.pdf"), p_zoom1, width=7, height=7)
+ggsave(file.path(plot_dir, "umap_GPL13534_M_rng1_zoom1.pdf"), p_zoom1, width=7, height=7)
 
-p_box1 <- plot_umap_gg(dat1, rect_coords=list(xmin=0.9, xmax=7.7, ymin=-4.0, ymax=3.5))
+p_box1 <- plot_umap_gg(dat1, rect_coords=list(xmin=0.9, xmax=7.7, ymin=-4.0, ymax=3.6))
 ggsave(file.path(plot_dir, "umap_GPL13534_M_rng1_box1.pdf"), p_box1, width=7, height=7)
 
 # Neighbors Comparison
