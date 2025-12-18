@@ -44,8 +44,8 @@ Once you have the image (either built locally or pulled from a registry), use th
 
 ```
 docker run --rm \
-  -v $(pwd)/data:/home/rstudio/project/data \
-  -v $(pwd)/plots:/home/rstudio/project/plots \
+  -v $(pwd)/data:/home/methylation_umap_example/data \
+  -v $(pwd)/plots:/home/methylation_umap_example/plots \
   methylation_umap_pipeline Rscript code/run_pipeline.R
 ```
 
