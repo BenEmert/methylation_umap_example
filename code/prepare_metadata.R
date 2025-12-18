@@ -92,7 +92,8 @@ temp_meta <- targets %>%
     left_join(methyl_map, by = "Methylation_Class") %>% 
     mutate(
       Color = paste0("#", Color), 
-      ID = paste(geo_accession, IDAT, sep = "_"))
+      ID = paste(geo_accession, IDAT, sep = "_")) %>%
+    rename(Color_Methyl = Color)
 
 message("   Adding diagnosis acronyms and color palette...")
 
