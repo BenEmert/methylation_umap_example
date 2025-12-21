@@ -194,7 +194,7 @@ dummy_plot <- ggplot(legend_key, aes(x = 1, y = 1, color = Color_dx)) +
       override.aes = list(
         alpha = 1,                     
         size = 5,                      
-        shape = 15                     
+        shape = 19                     
       )
     )
   ) +
