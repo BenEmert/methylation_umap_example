@@ -94,6 +94,44 @@ Upon successful execution, the pipeline will populate the following directories:
     - tsne_GPL13534_M_perplexity_comparison.pdf
 
 
+## Interactive Visualization (Shiny App)
+
+This repository includes a Shiny application to interactively explore the UMAP and t-SNE embeddings, allowing you to tune hyperparameters (e.g., neighbors, perplexity) and filter samples by diagnosis on your local computer.
+
+**Prerequisites**
+- The methylation analysis pipeline must be run first so that processed data exists in `data/analyzed/`.
+- If running locally, ensure you have restored the R environment with `renv::restore()`.
+
+**How to Run**
+You can launch the app directly from an R console at the project root:
+
+```r
+shiny::runApp("shinyApp")
+```
+
+Alternatively, if using RStudio:
+1. Open `shinyApp/app.R`
+2. Click the **Run App** button in the source editor.
+
+**Features**
+- **Dual View**: Compare two different embedding settings (e.g., UMAP vs t-SNE) side-by-side.
+- **Dynamic Tuning**: Adjust `n_neighbors`, `min_dist`, and `perplexity` on the fly.
+- **Filtering**: Select specific diagnoses to highlight or subset.
+- **Download**: Export the coordinate data for your custom views.
+
+
+## Cloud Demo (Google Colab)
+
+If you prefer not to install R or run the pipeline locally, you can explore the data using our Python-based dashboard on Google Colab. This notebook downloads the necessary data from the cloud and launches an interactive interface similar to the Shiny app.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1mhxDb12dY-lz1B4hIdR-VUvqNSNUu_mg?usp=sharing)
+
+**Features:**
+- **Zero Setup:** Runs entirely in your browser.
+- **Interactive:** Uses `Panel` and `Plotly` to replicate the UMAP/t-SNE tuning.
+- **Self-Contained:** Automatically fetches processed data.
+
+
 ## Building the Docker Image
 If you want to build the Docker image yourself (e.g., to verify the build process or modify the environment), follow these steps.
 
