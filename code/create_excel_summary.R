@@ -40,8 +40,8 @@ addWorksheet(wb, "sample_metadata")
 writeData(wb, "sample_metadata", metadata)
 
 # Add Sheet 2: Summary
-addWorksheet(wb, "Color_key")
-writeData(wb, "Color_key", summary_data)
+addWorksheet(wb, "color_key")
+writeData(wb, "color_key", summary_data)
 
 # Apply cell styling
 message("   Applying cell colors...")
@@ -50,7 +50,7 @@ for (i in 1:nrow(summary_data)) {
   style_dx <- createStyle(fgFill = summary_data$Color_dx[i])
   addStyle(
     wb,
-    "Diagnosis_Summary",
+    "color_key",
     style = style_dx,
     rows = i + 1,
     cols = which(names(summary_data) == "Color_dx")
