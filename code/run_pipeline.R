@@ -32,6 +32,7 @@ run_step("download_GEO_IDAT.R")
 run_step("process_IDAT.R")
 run_step("prepare_metadata.R")
 run_step("make_plots.R")
+run_step("create_excel_summary.R")
 
 message("\n======================================================\n",
         "PIPELINE COMPLETED SUCCESSFULLY\n",
