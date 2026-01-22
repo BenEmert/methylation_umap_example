@@ -16,8 +16,6 @@ data/analyzed/
 data/raw/minfi_targets_reference.csv
 plots/
 scripts_old/
+figures/
 
 .soft.gz
-# Ignore figure and data files
-.afdesign
-.pdf
