@@ -55,16 +55,6 @@ for (i in 1:nrow(summary_data)) {
     rows = i + 1,
     cols = which(names(summary_data) == "Color_dx")
   )
-
-  # Style for Color_WHO
-  style_who <- createStyle(fgFill = summary_data$Color_WHO[i])
-  addStyle(
-    wb,
-    "Diagnosis_Summary",
-    style = style_who,
-    rows = i + 1,
-    cols = which(names(summary_data) == "Color_WHO")
-  )
 }
 
 # Save Workbook
