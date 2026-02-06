@@ -1,0 +1,92 @@
+# Multi-Stage Build Dockerfile for Methylation Analysis Pipeline
+# Optimized for both size (~3-4GB) and build speed
+
+# 1. Base Image for Builder
+FROM r-base:4.3.2 AS builder
+
+# 2. Install System Dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libxml2-dev \
+    libicu-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype-dev \
+    libpng-dev \
+    libtiff-dev \
+    libjpeg-dev \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# 3. Set Work Directory
+WORKDIR /home/methylation_umap_example
+
+# 4. Configure R for parallel builds
+RUN mkdir -p /usr/local/lib/R/etc && \
+    echo "options(Ncpus = $(nproc))" >> /usr/local/lib/R/etc/Rprofile.site
+
+# 5. Install BiocManager and renv with parallel compilation
+RUN R -e "install.packages(c('BiocManager', 'renv'), \
+    repos='https://cloud.r-project.org', \
+    Ncpus=parallel::detectCores())"
+
+# 6. Copy only renv.lock first (for better layer caching)
+COPY renv.lock .
+
+# 7. Restore packages with parallel builds
+ENV MAKEFLAGS="-j$(nproc)"
+RUN R -e "options(Ncpus = parallel::detectCores()); \
+    renv::restore(prompt=FALSE)" \
+    && rm -rf /tmp/* \
+    && rm -rf ~/.cache/R
+
+# 8. Cleanup to reduce what gets copied to final stage
+RUN find /usr/local/lib/R/site-library -name "doc" -type d -exec rm -rf {} + 2>/dev/null || true \
+    && find /usr/local/lib/R/site-library -name "html" -type d -exec rm -rf {} + 2>/dev/null || true \
+    && find /usr/local/lib/R/site-library -name "help" -type d -exec rm -rf {} + 2>/dev/null || true \
+    && find /usr/local/lib/R/site-library -name "tests" -type d -exec rm -rf {} + 2>/dev/null || true \
+    && find /usr/local/lib/R/site-library -name "*.tar.gz" -delete
+
+# 9. Final Runtime Stage
+FROM r-base:4.3.2
+
+# 10. Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4 \
+    libssl3 \
+    zlib1g \
+    libbz2-1.0 \
+    liblzma5 \
+    libfontconfig1 \
+    libharfbuzz0b \
+    libfribidi0 \
+    libfreetype6 \
+    libpng16-16t64 \
+    libtiff6 \
+    libjpeg62-turbo \
+    libgomp1 \
+    libgfortran5 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 11. Set Work Directory
+WORKDIR /home/methylation_umap_example
+
+# 12. Copy compiled R libraries from builder
+COPY --from=builder /usr/local/lib/R/site-library /usr/local/lib/R/site-library
+
+# 13. Copy ALL shared libraries from builder to ensure version compatibility
+# This ensures that compiled R packages use the same library versions they were built against
+COPY --from=builder /usr/lib/aarch64-linux-gnu/libxml2.so* /usr/lib/aarch64-linux-gnu/
+COPY --from=builder /usr/lib/aarch64-linux-gnu/libicu*.so* /usr/lib/aarch64-linux-gnu/
+
+# 14. Copy code and create directories
+COPY code/ code/
+RUN mkdir -p data/raw/idats data/analyzed plots
+
+# 15. Default Command
+CMD ["/bin/bash"]

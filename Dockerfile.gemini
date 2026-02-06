@@ -1,0 +1,52 @@
+# 1. Base Image: Minimal R version 4.3.2
+# Switching from 'bioconductor_docker' (4GB) to 'rocker/r-ver' (700MB)
+FROM rocker/r-ver:4.3.2
+
+# 2. Install System Dependencies
+# Includes libbz2-dev/liblzma-dev for Rhtslib and font libraries for Tidyverse
+RUN apt-get update && apt-get install -y \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libxml2-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# 3. Set Project Root
+WORKDIR /home/methylation_umap_example
+
+# 4. Configure R for Faster Builds
+# Uses all CPU cores for package compilation (Speedup ~3x)
+RUN echo "options(Ncpus = $(nproc))" >> /usr/local/lib/R/etc/Rprofile.site
+
+# 5. Install Package Managers
+# We install standard BiocManager; renv handles specific versions automatically
+RUN R -e "install.packages('BiocManager'); install.packages('renv')"
+
+# 6. Restore R Environment
+COPY renv.lock .
+RUN R -e "renv::restore(prompt=FALSE)"
+
+# 7. Size Cleanup (Optional but Recommended)
+# Strips debug symbols from compiled C/C++ libraries to save ~300MB
+RUN rm -rf /tmp/downloaded_packages \
+    && strip /usr/local/lib/R/site-library/*/libs/*.so \
+    && rm -rf /usr/local/lib/R/site-library/*/help \
+    && rm -rf /usr/local/lib/R/site-library/*/doc \
+    && rm -rf /usr/local/lib/R/site-library/*/tests
+
+# 8. Copy Code and Create Directories
+COPY code/ code/
+RUN mkdir -p data/raw/idats data/analyzed plots
+
+# 9. Default Command
+CMD ["/bin/bash"]
