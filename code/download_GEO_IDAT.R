@@ -4,7 +4,6 @@ suppressPackageStartupMessages({
   library(stringr)
   library(data.table)
   library(limma)
-  library(sva)
   library(readxl)
   library(dplyr)
   library(tidyr)

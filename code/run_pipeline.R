@@ -3,9 +3,6 @@
 # Master script to run the methylation analysis pipeline
 # Location: code/run_pipeline.R
 # Usage: Rscript code/run_pipeline.R (Run from Project Root)
-
-# Define the directory where scripts live
-# Since we are running from root, the scripts are in "code"
 script_dir <- "code"
 
 run_step <- function(script_name) {
