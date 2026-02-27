@@ -46,7 +46,7 @@ Once you have the image (either built locally or pulled from a registry), use th
 docker run --rm \
   -v $(pwd)/data:/home/methylation_umap_example/data \
   -v $(pwd)/plots:/home/methylation_umap_example/plots \
-  methylation_umap_pipeline Rscript code/run_pipeline.R
+  bemert/methylation_umap_pipeline Rscript code/run_pipeline.R
 ```
 
 **What this command does:**
@@ -102,7 +102,21 @@ This repository includes a Shiny application to interactively explore the UMAP a
 - The methylation analysis pipeline must be run first so that processed data exists in `data/analyzed/`.
 - If running locally, ensure you have restored the R environment with `renv::restore()`.
 
-**How to Run**
+**How to Run (Docker)**
+
+To run the Shiny app inside the container, use the command below. 
+
+*   `-p 3838:3838`: Maps the container's port to your local machine.
+*   `-v $(pwd)/data:...`: **Crucial.** Mounts your local processed data so the app can read it.
+
+```bash
+docker run --rm -p 3838:3838 \
+  -v $(pwd)/data:/home/methylation_umap_example/data \
+  methylation_umap_pipeline \
+  Rscript -e "shiny::runApp('shinyApp', port = 3838, host = '0.0.0.0')"
+```
+
+**How to Run (Locally)**
 You can launch the app directly from an R console at the project root:
 
 ```r
