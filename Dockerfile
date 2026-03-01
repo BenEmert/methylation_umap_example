@@ -27,7 +27,9 @@ RUN R -e "install.packages('BiocManager'); install.packages('renv')"
 
 # 5. Restore R Environment
 COPY renv.lock .
-RUN R -e "renv::restore(prompt=FALSE)"
+RUN RENV_PATHS_CACHE=/tmp/renv_cache RENV_CONFIG_SANDBOX_ENABLED=FALSE \
+    R -e "renv::restore(prompt=FALSE)" \
+    && rm -rf /tmp/renv_cache
 
 # Clean up R documentation, tests, and temporary files to save space
 RUN rm -rf /tmp/downloaded_packages \
@@ -38,6 +40,7 @@ RUN rm -rf /tmp/downloaded_packages \
 
 # 6. Copy Code and Create Directories
 COPY code/ code/
+COPY shinyApp/ shinyApp/
 RUN mkdir -p data/raw/idats data/analyzed plots
 
 # 7. Default Command

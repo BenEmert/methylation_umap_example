@@ -17,6 +17,8 @@ The analysis is implemented in R and containerized with Docker to ensure reprodu
 │   ├── process_IDAT.R      # Normalization & filtering
 │   ├── prepare_metadata.R  # Metadata cleaning
 │   └── make_plots.R        # Figure generation
+├── shinyApp/               # Interactive Shiny explorer
+│   └── app.R               # UMAP/t-SNE parameter tuning app
 ├── data/                   # (Auto-generated) Input and processed data
 └── plots/                  # (Auto-generated) Final figure PDFs
 
@@ -31,28 +33,43 @@ Using Docker is the most reliable way to reproduce the analysis, as it encapsula
 
 1. **Getting the Docker Image**
 
-Pull the pre-built image from Docker hub: 
+Two pre-built images are available on Docker Hub:
+
+| Tag | Platform | Built via |
+|-----|----------|-----------|
+| `bemert/methylation_umap_pipeline:latest` | linux/amd64 | GitHub Actions |
+| `bemert/methylation_umap_pipeline:latest-arm64` | linux/arm64 (Apple Silicon) | Local build on macOS |
+
+The figures in the accompanying manuscript were generated using the `latest-arm64` image.
+
+Pull the image appropriate for your platform:
 
 ```bash
+# Linux / x86_64
 docker pull bemert/methylation_umap_pipeline:latest
+
+# macOS Apple Silicon (M1/M2/M3)
+docker pull bemert/methylation_umap_pipeline:latest-arm64
 ```
 
-If you want to build the Docker image yourself, see 
-[Building the Docker Image](#building-the-docker-image)
+If you want to build the Docker image yourself, see
+[Building the Docker Image](#building-the-docker-image).
 
 Once you have the image (either built locally or pulled from a registry), use the following command to run the analysis.
 
-```
+```bash
 docker run --rm \
   -v $(pwd)/data:/home/methylation_umap_example/data \
   -v $(pwd)/plots:/home/methylation_umap_example/plots \
-  bemert/methylation_umap_pipeline Rscript code/run_pipeline.R
+  bemert/methylation_umap_pipeline:latest Rscript code/run_pipeline.R
 ```
+
+> Replace `:latest` with `:latest-arm64` if running on Apple Silicon.
 
 **What this command does:**
 - `--rm`: Automatically removes the container after the script finishes.
-- `-v $(pwd)/data:...`: Maps your local data folder to the container
-- `methylation_umap_pipeline`: The name of the Docker image.
+- `-v $(pwd)/data:...`: Maps your local data folder to the container.
+- `bemert/methylation_umap_pipeline:latest`: The name and tag of the Docker image.
 - `Rscript code/run_pipeline.R`: The command to execute the pipeline.
 
 ## Running the Pipeline Locally (No Docker)
@@ -112,9 +129,11 @@ To run the Shiny app inside the container, use the command below.
 ```bash
 docker run --rm -p 3838:3838 \
   -v $(pwd)/data:/home/methylation_umap_example/data \
-  methylation_umap_pipeline \
+  bemert/methylation_umap_pipeline:latest \
   Rscript -e "shiny::runApp('shinyApp', port = 3838, host = '0.0.0.0')"
 ```
+
+> Replace `:latest` with `:latest-arm64` if running on Apple Silicon.
 
 **How to Run (Locally)**
 You can launch the app directly from an R console at the project root:

@@ -12,8 +12,13 @@ library(shinyWidgets)
 # ==============================================================================
 # Global Setup & Data Loading
 # ==============================================================================
+data_dir <- Sys.getenv("DATA_DIR", "../data/analyzed")
 
-data_dir <- "../data/analyzed"
+# Allow override via environment variable for Docker
+if (!dir.exists(data_dir)) {
+  warning("Data directory not found: ", data_dir)
+  warning("Set DATA_DIR environment variable or mount data to ./data/analyzed")
+}
 
 file_betas <- file.path(data_dir, "GSE140686_Final_Betas_corrected.rds")
 file_mvals <- file.path(data_dir, "GSE140686_Final_Mvals.rds")
